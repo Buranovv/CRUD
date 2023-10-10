@@ -9,6 +9,7 @@ import useFetchPaginition from "../hook/useFetchPaginition";
 const ProductsPage = () => {
   const { categoryId } = useParams();
   const [search, setSearch] = useState("");
+  const [sortPrice, setSortPrice] = useState("");
 
   const params = JSON.stringify({ search });
 
@@ -16,6 +17,13 @@ const ProductsPage = () => {
     `categories/${categoryId}/products`,
     params
   );
+
+  let sortedProducts;
+  if (sortPrice === "low") {
+    sortedProducts = products.sort((a, b) => (a.price < b.price ? 1 : -1));
+  } else if (sortPrice === "high") {
+    sortedProducts = products.sort((a, b) => (a.price > b.price ? 1 : -1));
+  }
 
   return (
     <Fragment>
@@ -27,7 +35,10 @@ const ProductsPage = () => {
             placeholder="Product search..."
           />
           <InputGroup.Text>
-            <Form.Select aria-label="Default select example">
+            <Form.Select
+              value={sortPrice}
+              onChange={(e) => setSortPrice(e.target.value)}
+            >
               <option>Sort by price</option>
               <option value="low">Low to high</option>
               <option value="high">High to low</option>
@@ -38,7 +49,7 @@ const ProductsPage = () => {
           {loading ? (
             <Loader />
           ) : (
-            products.map((pr) => (
+            sortedProducts.map((pr) => (
               <Col className="mb-4" key={pr.id}>
                 <ProductCard {...pr} />
               </Col>
